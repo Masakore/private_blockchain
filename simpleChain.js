@@ -151,23 +151,19 @@ class Blockchain{
   }
 
   // Validate blockchain
-  validateChain(){
+  async validateChain(){
     let errorLog = [];
     for (var i = 0; i < this.chain.length-1; i++) {
 
-			this.validateBlock(i).then((result) => {
-	      // validate block
-	      if (!result)errorLog.push(i);
-	      // compare blocks hash link
-	      let blockHash = this.chain[i].hash;
-	      let previousHash = this.chain[i+1].previousBlockHash;
-	      if (blockHash!==previousHash) {
-	        errorLog.push(i);
-	      }
-			}).catch((err) => {
-			  console.log(err);
-
-			});
+			let result = await this.validateBlock(i);
+	    // validate block
+      if (!result)errorLog.push(i);
+      // compare blocks hash link
+      let blockHash = this.chain[i].hash;
+      let previousHash = this.chain[i+1].previousBlockHash;
+      if (blockHash!==previousHash) {
+        errorLog.push(i);
+      }
     }
     if (errorLog.length>0) {
       console.log('Block errors = ' + errorLog.length);
@@ -190,3 +186,5 @@ class Blockchain{
 //     });
 //   }, 10000);
 // })(0);
+var testChain = new Blockchain();
+setTimeout(async () => await testChain.getBlockHeight(), 0);
