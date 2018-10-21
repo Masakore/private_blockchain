@@ -18,10 +18,10 @@ function loadDataFromLevelDB () {
 		let dataArray = [];
 		db.createReadStream()
 		.on('data', function (data) {
-		  dataArray.push(data)
+		  dataArray.push(data);
 		})
 		.on('error', function (err) {
-		  reject(err)
+		  reject(new Error(err));
 		})
 		.on('close', function () {
 		  resolve(dataArray);
@@ -103,26 +103,20 @@ class Blockchain{
   }
 
   // Get block height
-  getBlockHeight(){
-		loadDataFromLevelDB().then((data) => {
-      this.chain = data;
-      return console.log(this.chain.length-1);
-		}).catch((error) => {
-			console.error(error);
-		});
+  async getBlockHeight(){
+		let data = await loadDataFromLevelDB()
+		this.chain = data;
+    return this.chain.length-1;
   }
 
   // get block
-  getBlock(blockHeight){
-		return new Promise((resolve, reject) => {
-			loadDataFromLevelDB().then((data) => {
-	      this.chain = data;
-		    // return object as a single string
-		    return JSON.parse(JSON.stringify(this.chain[blockHeight]));
-			}).catch((error) => {
-				console.error(error);
-			});
-		})
+  async getBlock(blockHeight){
+		let data = await loadDataFromLevelDB();
+		if (!data) {
+	    this.chain = data;
+		  // return object as a single string
+		  return JSON.parse(JSON.stringify(this.chain[blockHeight]));
+		}
   }
 
   // validate block
@@ -187,4 +181,3 @@ class Blockchain{
 //   }, 10000);
 // })(0);
 var testChain = new Blockchain();
-setTimeout(async () => await testChain.getBlockHeight(), 0);
